@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<info>
+	<id>aufgaben</id>
+	<name>Aufgaben Remastered</name>
+	<version>1.0</version>
+	<licence>AGPL</licence>
+	<author>Doell Sebastian</author>
+	<require>8.00</require>
+	<shipped>true</shipped>
+	<description>Erinnerungen Reloaded</description>
+	<public>
+		<todo>sharetodo.php</todo>
+	</public>
+</info>
