@@ -892,6 +892,14 @@ span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:
 	line-height:28px;
 	
 }
+#edit-event #dropdown{
+	position:fixed;
+	z-index:600;
+}
+#edit-event #dropdown input{
+	float:none;
+}
+
 #new-event,#edit-event{
 	
 	color:#818181;
@@ -1032,17 +1040,8 @@ span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:
 	width: 30px; 
 	height: 30px;
 }
-#edit-event #dropdown{
-	width:270px;
-	top:70px;
-	left:0;
-	font-size:12px;
+
 	
-	
-}
-#edit-event #dropdown input[type="text"]{
-	width:250px;
-}	
 #edit-event i.ioc,#new-event i.ioc{
 	font-size:22px;
 }

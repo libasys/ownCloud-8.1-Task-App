@@ -714,7 +714,11 @@ OC.Aufgaben = {
 					resizable : false,
 					title : t('aufgaben', 'Edit Task'),
 					width : 370,
-
+					beforeClose: function( event, ui ) {
+						if(OC.Share.droppedDown){
+							OC.Share.hideDropDown();
+						}
+					},
 					position : {
 						my : 'center center',
 						at : 'center center',
@@ -1504,16 +1508,14 @@ $(window).resize(function() {
 $(document).ready(function() {
 	
 	OC.Aufgaben.getInit();
-	
-	$(document).on('click', function(event) {
+	$(document).on('click', '#edit-event a.share', function(event) {
 		event.stopPropagation();
-		//var target = $(event.target);
-		if ($("#tasks_list_details").is(':visible') && $('#tasks_list_details').has(event.target).length === 0) {
-			$("#tasks_list_details").hide();
-		}
-		//if($("#dialogmore").is(':visible') && $('#new-event').has(event.target).length === 0 && $('#new-event').has(event.target).length === 0){
-		//	$("#dialogmore").dialog('close');
-		//}
+
+		$('#edit-event #dropdown').css({
+			'top' : $(event.target).offset().top + 40,
+			'left' :$('#edit-event').offset().left
+		});
 	});
+	
 	
 }); 
