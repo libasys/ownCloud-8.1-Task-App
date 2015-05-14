@@ -48,8 +48,9 @@
 				title="<?php p($l->t('Share Event')) ?>"
 				style="background:url(<?php print_unescaped(OCP\Util::imagePath('core', 'actions/share.svg')) ?>) no-repeat center;">
 			</a>
-        <br style="clear:both;" />
-       <?php } ?>		
+        
+       <?php } ?>	
+     <br style="clear:both;" />  	
 <div id="accordion">
 	<h3>
 		
