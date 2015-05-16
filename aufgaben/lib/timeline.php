@@ -170,7 +170,7 @@ class Timeline{
 					$due = $vtodo->DUE;
 					$dtstart = $vtodo->DTSTART;	
 					
-					$Summary='<span class="description"><a href="'.\OCP\Util::linkTo('aufgaben', 'index.php').'#'.$taskInfo['id'].'">'.$vtodo->getAsString('SUMMARY').'</a></span>';
+					$Summary='<span class="description"><a href="'.\OC::$server->getURLGenerator()->linkToRoute('aufgaben.page.index').'#'.$taskInfo['id'].'">'.$vtodo->getAsString('SUMMARY').'</a></span>';
 					
 					$addPrivateImg='&nbsp;';
 					if ($accessclass!='' && ($accessclass === 'PRIVATE')){
