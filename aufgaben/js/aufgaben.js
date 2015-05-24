@@ -230,6 +230,11 @@ OC.Aufgaben = {
 			dateFormat : 'dd-mm-yy',
 			stepMinute : 5,
 			numberOfMonths : 1,
+			timeOnlyTitle: t('calendar','Choose Time'),
+			timeText: t('calendar','Time'),
+			hourText: t('calendar','Hour'),
+			minuteText: t('calendar','Minute'),
+			secondText: t('calendar','Second'),
 			addSliderAccess : true,
 			sliderAccessArgs : {
 				touchonly : false
@@ -528,7 +533,12 @@ OC.Aufgaben = {
 		});
 		$('#sWV_time').timepicker({
 			showPeriodLabels : false,
-			showButtonPanel : false
+			showButtonPanel : false,
+			timeOnlyTitle: t('calendar','Choose Time'),
+			timeText: t('calendar','Time'),
+			hourText: t('calendar','Hour'),
+			minuteText: t('calendar','Minute'),
+			secondText: t('calendar','Second'),
 		});
 
 		$('#startdate').datepicker({
@@ -537,7 +547,12 @@ OC.Aufgaben = {
 		});
 		$('#startdate_time').timepicker({
 			showPeriodLabels : false,
-			showButtonPanel : false
+			showButtonPanel : false,
+			timeOnlyTitle: t('calendar','Choose Time'),
+			timeText: t('calendar','Time'),
+			hourText: t('calendar','Hour'),
+			minuteText: t('calendar','Minute'),
+			secondText: t('calendar','Second'),
 		});
 		//$('#ldatetime')
 		var sDateTimeText='';

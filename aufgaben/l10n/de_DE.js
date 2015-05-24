@@ -5,6 +5,7 @@ OC.L10N.register(
                  "Tasks" : "Aufgaben",
                  "Due" : "Fällig",
                  "List" : "Liste",
+                 "Date" : "Datum",
                  "Location of the Event" : "Ort",
                  "Title of the Event" : "Neues Ereignis",
                  "Location" : "Ort",

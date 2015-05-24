@@ -12,7 +12,7 @@
     <input type="hidden" name="mytaskmode" id="mytaskmode" value="<?php p($_['mymode']); ?>" />		
 <input type="hidden" name="mytaskcal" id="mytaskcal" value="<?php p($_['mycal']); ?>" />		
 				<input type="hidden" name="read_worker" id="hiddenCalSelection" value="<?php p($_['calendar']); ?>">
-				<input type="text" style="width:284px; font-size:16px; color:#0098E4;padding:5px;"  placeholder="<?php p($l->t("Title of the Event"));?>" value="<?php p($_['vtodo']->summary); ?>" maxlength="100" id="tasksummary" name="tasksummary" autofocus="autofocus"/>
+				<input type="text" style="width:304px; font-size:16px; color:#555;padding:5px;"  placeholder="<?php p($l->t("Title of the Event"));?>" value="<?php p($_['vtodo']->summary); ?>" maxlength="100" id="tasksummary" name="tasksummary" autofocus="autofocus"/>
 			   <?php if((array_key_exists($_['calId'],$_['cal_permissions']) && ($_['cal_permissions'][$_['calId']] & OCP\PERMISSION_CREATE))){ ?>
 			   
 			    <div id="sCalSelect" class="combobox">
@@ -37,7 +37,7 @@
 			</div>
 			<?php } ?>
 			<br />
-			<input type="text" style="width:286px;"  placeholder="<?php p($l->t("Location of the Event"));?>" value="<?php p($_['vtodo']->location); ?>" maxlength="100" id="tasklocation"  name="tasklocation" />
+			<input type="text" style="width:306px;"  placeholder="<?php p($l->t("Location of the Event"));?>" value="<?php p($_['vtodo']->location); ?>" maxlength="100" id="tasklocation"  name="tasklocation" />
              <?php if($_['permissions'] & OCP\PERMISSION_SHARE) { ?>
            
               <a href="#" class="share action permanent" data-item-type="todo" 
@@ -51,7 +51,7 @@
         
        <?php } ?>	
      <br style="clear:both;" />  	
-<div id="accordion">
+<div id="accordion" style="width:99%;">
 	<h3>
 		
 		<span id="ldatetime" style="font-weight:normal;font-size:12px;"><?php p($l->t('Add Start, Due Date')); ?></span>
@@ -152,14 +152,14 @@
 						</select>
 					</span>
 					<span id="reminderdateTable" class="advancedReminder">
-						<?php p($l->t("Date"));?> <input type="text" style="width:85px;" value="<?php p($_['reminderdate']);?>" name="reminderdate" id="reminderdate">
+						<span><?php p($l->t("Date"));?></span> <input type="text" style="width:85px;" value="<?php p($_['reminderdate']);?>" name="reminderdate" id="reminderdate">
 						&nbsp;
-						<input type="number" style="padding:2px; width:40px;" value="<?php p($_['remindertime']);?>" name="remindertime" id="remindertime">
+						<input type="text" style="padding:2px; width:40px;" value="<?php p($_['remindertime']);?>" name="remindertime" id="remindertime">
 					</span>
 						<span id="reminderemailinputTable" class="advancedReminder">
-							<?php p($l->t("Email"));?> <input type="text" style="width:150px;" name="reminderemailinput" id="reminderemailinput" value="<?php p($_['reminderemailinput']); ?>" />
-						</span><br />
-					<span style="width:100%;border-top:1px solid #bbb;display:block;padding-top:4px;">
+							<span><?php p($l->t("Email"));?></span> <input type="text" style="width:140px;" name="reminderemailinput" id="reminderemailinput" value="<?php p($_['reminderemailinput']); ?>" />
+						</span><br style="clear:both;" />
+					<span style="width:100%;border-top:1px solid #bbb;display:block;margin-top:5px;padding-top:4px;">
 				<div class="button-group" style="float:right;">
 				<button id="remCancel" class="button"><?php p($l->t("Cancel"));?></button> 
 				<button id="remOk" style="font-weight:bold;color:#0098E4; min-width:60px;"  class="button"><?php p($l->t("OK"));?></button>
