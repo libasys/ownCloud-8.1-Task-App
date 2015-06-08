@@ -71,6 +71,81 @@
 	margin-top:0;	
 	
 }
+.ui-dialog-titlebar.ui-widget-header .ui-dialog-titlebar-close .ui-icon-closethick{
+	background-repeat: no-repeat;
+	background-position: center;
+	top:2px;
+	width: 26px;
+	height: 26px;
+	background-size:24px 24px;
+	background-image: url('../../../core/img/actions/close.svg');
+}
+
+
+#dropdown{
+	position:fixed;
+	right:0;
+	top:45px;
+	z-index:400;
+	height:100%;
+	max-width:350px;
+	color:#555;
+	border-radius:none;
+	background-color:#f4f4f4;
+	box-shadow:-1px 1px 8px rgba(0,0,0,0.5);
+}
+
+#dropdown #infoShare{
+	position:relative;
+	display:block;
+	width:100%;
+	font-size:16px;
+	line-height: 30px;
+	height:30px;
+	border-bottom:1px solid #BBBBBB;
+	padding-bottom:5px;
+	margin-bottom:5px;
+}
+ #dropdown #infoShare div{
+	position:relative;
+	margin-left:5px;
+}
+#dropdown #infoShare #dropClose
+{
+	position:absolute;
+	top:-10px;
+	right:-10px;
+	width:30px;
+	cursor:pointer;
+	height:30px;
+	font-size:22px;
+}
+
+#dropdown label,
+#dropdown span,
+#dropdown a{
+	color:#555;
+	line-height:20px;
+}
+
+#dropdown a.icon-info{
+	float:right;
+	
+	display:inline;
+	width:20px;
+	height:26px;
+	margin:0;
+	padding:0;
+	margin-top:5px;
+	min-height:26px;
+}
+#dropdown #linkText{
+	width:95%;
+}
+#dropdown #shareWithList{
+	position:relative;
+	display:inline-block;
+}
 
 
 /*RIGHTCONTENT*/
@@ -954,13 +1029,7 @@ span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:
 	line-height:28px;
 	
 }
-#edit-event #dropdown{
-	position:fixed;
-	z-index:600;
-}
-#edit-event #dropdown input{
-	float:none;
-}
+
 
 #new-event,#edit-event{
 	

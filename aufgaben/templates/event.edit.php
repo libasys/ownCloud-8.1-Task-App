@@ -43,7 +43,7 @@
               <a href="#" class="share action permanent" data-item-type="todo" 
 			    data-item="todo-<?php p($_['id']) ?>" 
 			    data-link="true"
-			    data-eventname="<?php p($_['vtodo']->summary); ?>"
+			    data-title="<?php p($_['vtodo']->summary); ?>"
 				data-possible-permissions="<?php p( $_['permissions']) ?>"
 				title="<?php p($l->t('Share Event')) ?>"
 				style="background:url(<?php print_unescaped(OCP\Util::imagePath('core', 'actions/share.svg')) ?>) no-repeat center;">
