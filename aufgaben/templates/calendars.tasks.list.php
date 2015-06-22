@@ -1,4 +1,4 @@
-<h3><?php p($l->t('Tasks')); ?></h3>
+<h3><i class="ioc ioc-tasks"></i> <?php p($l->t('Tasks')); ?></h3>
 <ul id="taskList">
 <?php
  $aTimeArray=array('today'=>'today','tomorrow'=>'tomorrow','week'=>'This Week','commingsoon'=>'Coming soon','missed'=>'Missed','notermin'=>'Without Time');

@@ -48,12 +48,12 @@
 	</h3>
 	<div>
 	    <span class="labelLeftSmall"><?php p($l->t('Start')); ?></span> 
-	    <input type="text" name="startdate" id="startdate" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe81c;"   value="" />
-	    <input type="text" name="startdate_time" id="startdate_time" class="textField"  placeholder="&#xe826;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="" />
+	    <input type="text" name="startdate" id="startdate" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe827;"   value="" />
+	    <input type="text" name="startdate_time" id="startdate_time" class="textField"  placeholder="&#xe800;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="" />
 		 <br class="clearing"  />
 	    <span class="labelLeftSmall"><?php p($l->t('Due')); ?></span> 
-	        <input type="text" name="sWV" id="sWV" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe81c;"   value="" />
-	    <input type="text" name="sWV_time" id="sWV_time" class="textField"  placeholder="&#xe826;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="" />
+	        <input type="text" name="sWV" id="sWV" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe827;"   value="" />
+	    <input type="text" name="sWV_time" id="sWV_time" class="textField"  placeholder="&#xe800;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="" />
 	<br class="clearing"  />
 	</div>
 
@@ -110,9 +110,9 @@
      
      <ul id="tagmanager" style="width:96%;line-height:20px;margin-top:6px;margin-bottom:5px;"></ul>
    
-	<input type="text" style="width:95%;font-family:Arial, fontello;font-size:14px;" size="200" size="200" placeholder="&#xe82e; <?php p($l->t("URL"));?>" value="" maxlength="200"  name="link" />
+	<input type="text" style="width:95%;font-family:Arial, fontello;font-size:14px;" size="200" size="200" placeholder="&#xe84f; <?php p($l->t("URL"));?>" value="" maxlength="200"  name="link" />
       <br class="clearing"  />
-    <textarea placeholder="&#xe817; <?php p($l->t("Description of the Event"));?>" name="noticetxt"  style="width:94%;height: 50px;font-family:Arial, fontello;font-size:14px;"></textarea>
+    <textarea placeholder="&#xe845; <?php p($l->t("Description of the Event"));?>" name="noticetxt"  style="width:94%;height: 50px;font-family:Arial, fontello;font-size:14px;"></textarea>
      <br class="clearing"  />
 </div>
 </div>

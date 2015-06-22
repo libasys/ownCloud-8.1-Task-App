@@ -9,13 +9,16 @@
 	
 }
 
+
 .app-aufgaben #searchresults {
-	background-color:rgba(255,255,255,1);
+	background-color:rgba(255,255,255,0.9);
+	box-shadow:-1px 1px 8px rgba(0,0,0,0.5);
 	position:fixed;
 	overflow: auto;
-	height:50%;
+	height:100%;
 	text-overflow: ellipsis;
-	width:auto;
+	width:300px;
+	right:0;
 	padding-top: 20px;
 	box-sizing: border-box;
 	z-index: 100;
@@ -23,6 +26,7 @@
 	margin-top: 0px;
 	
 }
+
 
 .ui-dialog{
 	background:#fff;
@@ -86,7 +90,6 @@
 	position:fixed;
 	right:0;
 	top:45px;
-	z-index:400;
 	height:100%;
 	max-width:350px;
 	color:#555;
@@ -123,9 +126,11 @@
 
 #dropdown label,
 #dropdown span,
-#dropdown a{
+#dropdown a
+{
 	color:#555;
 	line-height:20px;
+	
 }
 
 #dropdown a.icon-info{
@@ -173,20 +178,21 @@
 	overflow:auto;
 	float:left;
 	
-	height:93%;
+	height:92%;
 	
 }
 #tasks_list{
-	height:500px;
+	height:auto;
 	position:relative;
 	float:left;
 	left:0;
 	padding-left:0;
-	margin-left:0;
+	margin-left:auto;
+	margin-right:auto;
 	overflow:auto; 
 	display:block;
 	width:100%;
-	margin-left:0px;
+	
 }
 #tasks_list_details{
 	height:500px;
@@ -293,12 +299,12 @@ width:96%;
 	 padding:5px 0px;
 	 width:100%;
 	 margin-left:5px;
-	 
+	
 	
 }
 
 ul#taskstime li,ul#taskssum li,ul#calendarList li{
-	border-bottom:1px solid #E7E7DE;
+	
 	cursor:pointer;
 	background:#fff;
 	padding-left:5px;
@@ -313,7 +319,35 @@ ul#taskstime li:hover,ul#taskssum li:hover,ul#calendarList li:hover,ul#categoryT
 	background:#f4f4f4;
 }
 
-#taskstime .iCount,#taskssum .iCount,#calendarList .iCount ,#donetodo .iCount{
+#taskstime .iCount,#taskssum .iCount,#calendarList .iCount {
+	float:right;
+	display:block;
+	width:24px;
+	height:32px;
+	line-height:32px;
+	font-size:14px;
+	background:transparent;
+	
+	color:#333;
+	text-align:center;
+}
+
+#taskstime .descr,#taskssum .descr,#calendarList .descr{
+	float:left;
+	display:block;
+	cursor:pointer;
+	height:32px;
+	line-height:32px;
+}	 
+
+#calendarList  span.descr{
+	white-space: nowrap;
+	overflow:hidden;
+	 text-overflow: ellipsis;
+    width:150px;
+}	
+
+#donetodo .iCount{
 	float:right;
 	display:block;
 	width:24px;
@@ -326,17 +360,7 @@ ul#taskstime li:hover,ul#taskssum li:hover,ul#calendarList li:hover,ul#categoryT
 	text-align:center;
 }
 
-#taskstime .descr,#taskssum .descr,#calendarList .descr{
-	float:left;
-	display:block;
-}	 
 
-#calendarList  span.descr{
-	white-space: nowrap;
-	overflow:hidden;
-	 text-overflow: ellipsis;
-    width:150px;
-}	
  
 span.taskActions{
 	position:absolute;
@@ -407,7 +431,7 @@ border-right:1px solid #E7E7DE;
 }
 
 
-.task .summary{position:relative;float:left;display:block;margin:2px;min-width:50%;height:22px;line-height:22px;cursor:pointer;}
+.task .summary{position:relative;float:left;display:block;margin:2px;width:auto;height:22px;line-height:22px;cursor:pointer;}
 .task .completeDate{
 	font-size:11px;
 	width:15%;
@@ -509,21 +533,27 @@ cursor:pointer;
 	background:#f4f4f4;
 }
 
+.task i.ioc-angle-down{
+	font-size:26px;
+	color:#000;
+	cursor:pointer;
+}
+
 #categoryTasksList li{
 	padding:0;
 	line-height:24px;
 	color:#313131;	
 }
 .colCal{
-	width:16px;
-	height:16px;
+	width:20px;
+	height:20px;
 	display:block;
 	padding:0;
 	margin:4px;
 	font-size:12px;
 	text-align:center;
 	color:#fff;
-	line-height:16px;
+	line-height:20px;
 	
 	border-radius:3px;
 	-webkit-border-radius:3px;
@@ -557,7 +587,13 @@ a.catColPrev{
 	line-height:28px;
 	height:28px;
 	color:#818181;
-	border-bottom:1px solid #e7e7de;
+	
+}
+.categorieslisting .counter{
+	float:right;
+	line-height:28px;
+	height:28px;
+	width:20px;
 }
 
 span.colorCal,.task .calCol,.task .priority{
@@ -662,8 +698,9 @@ color:#999;
 	line-height:18px;
 }
 ul#calendarList li.isActiveCal .iCount:before{
-    content: '\2714';
-	font-size: 24px;
+   font-family:"fontello";
+	content: '\e865';
+	font-size: 18px;
 	position: absolute;
 	margin-left:-24px;
 	color: #99a1a7;
@@ -801,11 +838,12 @@ label {
 }
 
 .regular-checkbox:checked + label:after, .isActiveUserCal:after,.isSelectedCheckbox:after {
-	content: '\2714';
-	font-size: 20px;
+	font-family:"fontello";
+	content: '\e865';
+	font-size: 16px;
 	position: absolute;
-	top: -10px;
-	left: 3px;
+	top: -12px;
+	left: 2px;
 	color: #99a1a7;
 }
 
@@ -937,14 +975,19 @@ label {
 	width:50px;
 }
 
-#new-event select,#edit-event select,#new-event input[type="text"],#edit-event input[type="text"],#tasks_list_details select{
+#new-event select,
+#edit-event select,
+#new-event input[type="text"],
+#edit-event input[type="text"]
+{
 	padding:2px 4px;
 	float:left;
 	background:#fff;
 	font-size:12px;
 	line-height:20px;
 }
-#new-event select,#edit-event select{
+#new-event select,
+#edit-event select{
 	min-width:130px;
 	padding-top:2px;
 	margin:0;
@@ -953,12 +996,14 @@ label {
 	height:24px;
 	line-height:24px;
 }
+
 #reminderoutput{
 	clear:both;
 	
 	margin-left:60px;
 }
-#new-event .advancedReminder,#edit-event .advancedReminder{
+#new-event .advancedReminder,
+#edit-event .advancedReminder{
 	float:left;
 	position:relative;
 	display:block;
@@ -979,19 +1024,21 @@ h3[data-id="lTimeline"] span.lspacer,h3[data-id="lCategory"] span.lspacer,h3[dat
 
 span[data-val="counterdone"]:before,h3[data-id="lTimeline"]:before,h3[data-id="lCategory"]:before,h3[data-id="lCalendar"]:before{
 	position: absolute;
-	color: #99a1a7;
-	
+	color: #333;
+	cursor:pointer;
 	background:none;
 	margin:0;
 	left:10px;
-	font-size:20px;
+	font-size:30px;
 }
 span[data-val="counterdone"]:before,h3[data-id="lTimeline"]:before,h3[data-id="lCategory"]:before,h3[data-id="lCalendar"]:before{
-	content: '\25B6';
+	font-family:"fontello";
+	content: '\e84d';
 }
 
 span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:before,h3[data-id="lCategory"].arrowDown:before,h3[data-id="lCalendar"].arrowDown:before {
-	content: '\25BC';
+	font-family:"fontello";
+	content: '\e839';
 	
 }
 #donetodo{
@@ -1021,32 +1068,28 @@ span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:
 	z-index:300;
 }
 
-#edit-event,#new-event{
+#edit-event,
+#new-event{
 	position:relative;
 	margin-top:2px;
 	right:0;
 	padding:5px;
 	line-height:28px;
-	
-}
-
-
-#new-event,#edit-event{
-	
 	color:#818181;
 	text-shadow:1px 1px #f4f4f4;
 	font-size:13px;
 	font-family:verdana;
-	
-
-
 }
-#new-event textarea,#edit-event textarea{
+
+
+#new-event textarea,
+#edit-event textarea{
 	outline: none;
 	background-color:#FCEDA7;
 	line-height:20px;
 	height:100px;
 }
+
 .task.hidden{
 	display:none;
 }
@@ -1226,7 +1269,8 @@ span[data-val="counterdone"].arrowDown:before,h3[data-id="lTimeline"].arrowDown:
 }
 
 	
-#edit-event i.ioc,#new-event i.ioc{
+#edit-event i.ioc,
+#new-event i.ioc{
 	font-size:22px;
 }
 .draggingCategory{

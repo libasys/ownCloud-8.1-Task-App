@@ -21,10 +21,12 @@
 
 OC.Aufgaben = {
 	firstLoading : true,
-	startMode : 'actweek',
+	startMode : 'showall',
 	categories:null,
 	tags:null,
 	mycalendars:null,
+	popOverElem:null,
+	searchTodoId:null,
 	sendmail : function(eventId, emails) {
 		//Calendar.UI.loading(true);
 		$.post(OC.filePath('calendar', 'ajax/event', 'sendmail.php'), {
@@ -266,10 +268,10 @@ OC.Aufgaben = {
 			if (taskSingleArray.orgevent) {
 				tmpTask = $('<div class="task dropzone" style="border:2px dotted #000;" data-id="' + taskSingleArray.id + '">');
 			}
-
+			
 			if (taskSingleArray.relatedto != '' && $('div[data-uid="' + taskSingleArray.relatedto + '"]').length > 0) {
 				$('div[data-uid="' + taskSingleArray.relatedto + '"]').append(tmpTask);
-
+				
 			} else {
 				if ($('#newtodo').length > 0) {
 					$('.task[id="newtodo"]').before(tmpTask);
@@ -297,10 +299,10 @@ OC.Aufgaben = {
 			} else {
 				checkbox.attr('disabled', 'disabled');
 			}
-
+			
 			if (taskSingleArray.subtask) {
 
-				$('<div style="float:left;margin-top:3px;width:30px;text-align:center;">').append($('<i id="arrow_' + taskSingleArray.id + '">').addClass('ioc ioc-chevron-down ioc-rotate-270').css('font-size', '20px')).appendTo(tmpTask);
+				$('<div style="float:left;margin-top:0px;width:30px;text-align:center;">').append($('<i id="arrow_' + taskSingleArray.id + '">').addClass('ioc ioc-angle-down ioc-rotate-270')).appendTo(tmpTask);
 				$('#arrow_' + taskSingleArray.id).on('click', OC.Aufgaben.ToggleView);
 			}
 
@@ -336,15 +338,20 @@ OC.Aufgaben = {
 				imgPrivate = ' <i class="ioc ioc-eye" title="confidential"></i> ';
 				$(imgPrivate).appendTo(iconDiv);
 			}
-
+			var subTaskIcon='';
+			if (taskSingleArray.relatedto != '' && $('div[data-uid="' + taskSingleArray.relatedto + '"]').length === 0){
+				subTaskIcon ='<i class="ioc ioc-forward" title="Subtask related to '+taskSingleArray.relatedto+'"></i>';
+				$(subTaskIcon).appendTo(iconDiv);	
+			}
 			var repeatDescr = '';
 			if (taskSingleArray.repeating) {
 				if (taskSingleArray.day != undefined) {
 					repeatDescr = ' taeglich -> ' + taskSingleArray.day;
 				}
 			}
-			$('<div>').addClass('summary').text(taskSingleArray.summary + repeatDescr).on('click', OC.Aufgaben.showEditTask).appendTo(tmpTask);
+			$('<div>').addClass('summary').attr('data-todoid',taskSingleArray.id).text(taskSingleArray.summary + repeatDescr).on('click', OC.Aufgaben.showEditTask).appendTo(tmpTask);
 			//summary
+			
 
 			var cpDate = '';
 			if (taskSingleArray.iscompleted) {
@@ -362,6 +369,7 @@ OC.Aufgaben = {
 					'margin-top' : '15px'
 				});
 				SubTaskHandler.appendTo(tmpTask);
+				
 				$('#newsubtask_' + taskSingleArray.id).on('click', OC.Aufgaben.newTask);
 
 				var TaskCompleteHandler = $('<i id="newcomplete_' + taskSingleArray.id + '"/>').attr('title',t('aufgaben','Calculate Complete Main Task')).addClass('ioc ioc-refresh').css({
@@ -436,6 +444,9 @@ OC.Aufgaben = {
 			$Task.removeClass('filterActive');
 			$('.task').each(function(i, el) {
 				$(el).show('fast');
+				if($(el).find('.ioc-angle-down').hasClass('ioc-rotate-270')){
+					$(el).find('.ioc-angle-down').removeClass('ioc-rotate-270');
+				}
 			});
 		} else {
 			$('.task [data-val="counterdone"]').addClass('arrowDown');
@@ -466,51 +477,7 @@ OC.Aufgaben = {
 		});
 		
 	},
-	generateTaskList : function(jsondata) {
-		$('#donetodo').on('click', function() {
-			$('.task [data-val="counterdone"]').toggleClass('arrowDown');
-			if (! $('.task.done').is(':visible')) {
-				$('span[data-val="counterdone"]:before').css('content', '\25BC');
-				$('.task.done').show('fast');
-			} else {
-				$('.task.done').hide('fast');
-			}
-		});
-
-		$('.task [data-val="counterdone"]').text($(jsondata['done']).length);
-		$(jsondata['done']).each(function(i, task) {
-			OC.Aufgaben.taskRendering(task);
-		});
-
-		$(jsondata['open']).each(function(i, task) {
-			OC.Aufgaben.taskRendering(task);
-		});
-		if ($(jsondata['done']).length == 0 && $(jsondata['open']).length == 0) {
-			var tmpTask = $('<div class="task" data-id="notodo">').html('<label>' + t('aufgaben', 'No Todos') + '</label>');
-			$('#tasks_list').append(tmpTask);
-		}
-		$('.task .subtask').toggle();
-
-		$(".dropzone").droppable({
-			activeClass : "activeHover",
-			hoverClass : "dropHover",
-			accept : '#categoryTasksList .categorieslisting',
-			over : function(event, ui) {
-
-			},
-			drop : function(event, ui) {
-				if ($(this).data('id') != null)
-					OC.Aufgaben.addCategory($(this).data('id'), ui.draggable.attr('title'));
-			}
-		});
-
-		if (OC.Aufgaben.firstLoading == true) {
-			OC.Aufgaben.checkShowEventHash();
-			OC.Aufgaben.firstLoading = false;
-			OC.Aufgaben.calcDimension();
-		}
-
-	},
+	
 	initActionHandler : function() {
 
 		$( "#accordion" ).accordion({
@@ -697,84 +664,91 @@ OC.Aufgaben = {
 			TaskId = $Task.attr('data-id');
 			myMode = $('#donetodo').data('mode');
 			myCal = $('#donetodo').data('cal');
-			//Find Main Id
-
-		} else {
-
-			TaskId = event['id'];
-			myMode = 'showall';
-			myCal = 0;
-			OC.Aufgaben.updateListByPeriod(myMode);
-			$('.taskstimerow').removeClass('active');
-			$('.taskstimerow[data-id="showall"]').addClass('active');
-
+			//Find Main Id	
+		}else{
+			TaskId = event.id;
+			myMode = $('#donetodo').data('mode');
+			myCal = $('#donetodo').data('cal');
+		}
+		
+		if($('.webui-popover').length>0){
+			if(OC.Aufgaben.popOverElem !== null){
+				OC.Aufgaben.popOverElem.webuiPopover('destroy');
+				OC.Aufgaben.popOverElem = null;
+				$('#edit-event').remove();
+			}
 		}
 		
 		
-		$.ajax({
-			type : 'POST',
-			url :OC.generateUrl('apps/aufgaben/edittask'),
-			data : {
-				tid : TaskId,
-				mytaskmode : myMode,
-				mytaskcal : myCal
-			},
-			success : function(data) {
-				$('.task').removeClass('highlightTask');
-				$('.task[data-id="' + TaskId + '"]').addClass('highlightTask');
-
-				$("#dialogmore").html(data);
-				//$("#tasks_list_details").show('fast');
-				$("#dialogmore").dialog({
-					resizable : false,
-					title : t('aufgaben', 'Edit Task'),
-					width : 370,
-					beforeClose: function( event, ui ) {
+		
+		OC.Aufgaben.popOverElem = $(event.target); 	
+			
+		OC.Aufgaben.popOverElem.webuiPopover({
+			url:OC.generateUrl('apps/aufgaben/edittask'),
+			async:{
+				type:'POST',
+				data : {
+					tid : TaskId,
+					mytaskmode : myMode,
+					mytaskcal : myCal
+				},
+				success:function(that,data){
+					that.displayContent();
+					that.getContentElement().css('height','auto');
+					
+					$('#showOnShare').hide();
+	
+					$('#editTodo-submit').on('click', function() {
 						if(OC.Share.droppedDown){
 							OC.Share.hideDropDown();
 						}
-					},
-					position : {
-						my : 'center center',
-						at : 'center center',
-						of : $('#app-content')
-					},
-					modal : false,
-				});
-
-				$('#showOnShare').hide();
-
-			
-				$('#editTodo-submit').on('click', function() {
-					if ($('#tasksummary').val() != '') {
-						OC.Aufgaben.SubmitForm('edititTask', '#taskForm', '#tasks_list_details');
-						$('.task[data-id="' + TaskId + '"]').addClass('highlightTask');
-					} else {
-						OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
+						
+						if ($('#tasksummary').val() != '') {
+							OC.Aufgaben.SubmitForm('edititTask', '#taskForm', '#tasks_list_details');
+							$('.task[data-id="' + TaskId + '"]').addClass('highlightTask');
+						} else {
+							OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
+						}
+					});
+					$('#editTodo-cancel').on('click', function() {
+						if(OC.Share.droppedDown){
+							OC.Share.hideDropDown();
+						}
+						OC.Aufgaben.popOverElem.webuiPopover('destroy');
+						OC.Aufgaben.popOverElem = null;
+						$('#edit-event').remove();
+						$('.task[data-id="' + TaskId + '"]').removeClass('highlightTask');
+					});
+					$('#deleteTodo-submit').on('click', function() {
+						taskId = $('#taskid').val();
+						OC.Aufgaben.deleteHandler(taskId);
+						$('.task[data-id="' + TaskId + '"]').removeClass('highlightTask');
+					});
+	
+					OC.Aufgaben.getReminderSelectLists();
+					if ($('#sReminderRequest').val() != '') {
+						$('#reminderoutput').text(OC.Aufgaben.reminderToText($('#sReminderRequest').val()));
+						$('#lreminder').html('<i class="ioc ioc-clock" style="font-size:14px;"></i> '+OC.Aufgaben.reminderToText($('#sReminderRequest').val()));
 					}
-				});
-				$('#editTodo-cancel').on('click', function() {
-					$("#dialogmore").dialog("close");
-					$('.task[data-id="' + TaskId + '"]').removeClass('highlightTask');
-				});
-				$('#deleteTodo-submit').on('click', function() {
-					taskId = $('#taskid').val();
-					OC.Aufgaben.deleteHandler(taskId);
-					$('.task[data-id="' + TaskId + '"]').removeClass('highlightTask');
-				});
+					
+					OC.Aufgaben.initActionHandler();
+	
+					OC.Share.loadIcons('todo', '');
 
-				OC.Aufgaben.getReminderSelectLists();
-				if ($('#sReminderRequest').val() != '') {
-					$('#reminderoutput').text(OC.Aufgaben.reminderToText($('#sReminderRequest').val()));
-					$('#lreminder').html('<i class="ioc ioc-clock" style="font-size:14px;"></i> '+OC.Aufgaben.reminderToText($('#sReminderRequest').val()));
+					
 				}
-				
-				OC.Aufgaben.initActionHandler();
+			},
+			multi:false,
+			closeable:false,
+			cache:false,
+			placement:'auto',
+			type:'async',
+			width:400,
+			animation:'pop',
+			height:250,
+			trigger:'manual',
+		}).webuiPopover('show');	
 
-				OC.Share.loadIcons('todo', '');
-
-			}
-		});
 		return false;
 	},
 
@@ -794,11 +768,11 @@ OC.Aufgaben = {
 	ToggleView : function() {
 		$Task = $(this).closest('.task');
 		TaskId = $Task.attr('data-id');
-		if ($('div[data-id="' + TaskId + '"]').find('i.ioc-chevron-down').hasClass('ioc-rotate-270')) {
-			$('div[data-id="' + TaskId + '"]').find('i.ioc-chevron-down').removeClass('ioc-rotate-270');
+		if ($('div[data-id="' + TaskId + '"]').find('i.ioc-angle-down').hasClass('ioc-rotate-270')) {
+			$('div[data-id="' + TaskId + '"]').find('i.ioc-angle-down').removeClass('ioc-rotate-270');
 			$('div[data-id="' + TaskId + '"]').find('.subtask').show();
 		} else {
-			$('div[data-id="' + TaskId + '"]').find('i.ioc-chevron-down').addClass('ioc-rotate-270');
+			$('div[data-id="' + TaskId + '"]').find('i.ioc-angle-down').addClass('ioc-rotate-270');
 			$('div[data-id="' + TaskId + '"]').find('.subtask').hide();
 		}
 
@@ -842,7 +816,7 @@ OC.Aufgaben = {
 				$('div.opentask[data-uid="' + myClone.attr('data-relatedto') + '"]').append(myClone);
 
 			} else {
-				$('.task[id="newtodo"]').before(myClone);
+				$('#tasks_list').append(myClone);
 			}
 
 		}
@@ -999,7 +973,7 @@ OC.Aufgaben = {
 		});
 
 	},
-	newTask : function() {
+	newTask : function(event) {
 
 		$Task = $(this).closest('.task');
 		TaskUid = $Task.attr('data-uid');
@@ -1007,65 +981,74 @@ OC.Aufgaben = {
 			TaskUid = '';
 		}
 		//position = $(this).position();
-
-		$.ajax({
-			type : 'POST',
-			url : OC.generateUrl('apps/aufgaben/newtask'),
-			data : {
-				mytaskmode : $('#donetodo').data('mode'),
-				mytaskcal : $('#donetodo').data('cal'),
-				relatedto : TaskUid
-			},
-			success : function(data) {
-				$("#dialogmore").html(data);
-				//$("#tasks_list_details").show('fast');
-				$("#dialogmore").dialog({
-					resizable : false,
-					title : t('aufgaben', 'Add Task'),
-					width : 370,
-
-					position : {
-						my : 'center center',
-						at : 'center center',
-						of : $('#app-content')
-					},
-					modal : false,
-				});
-
-				if ($('#donetodo').data('mode') == 'dayselect') {
-					$('#startdate').val($('#taskmanagertitle').attr('data-date'));
+		if($('.webui-popover').length>0){
+				if(OC.Aufgaben.popOverElem !== null){
+					OC.Aufgaben.popOverElem.webuiPopover('destroy');
+					OC.Aufgaben.popOverElem = null;
+					$('#new-event').remove();
 				}
-
-				$('#newTodo-submit').on('click', function() {
-					if ($('#tasksummary').val() != '') {
-						OC.Aufgaben.SubmitForm('newitTask', '#taskForm', '#tasks_list_details');
-					} else {
-						OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
-					}
-				});
-
-				$('#tasksummary').bind('keydown', function(event) {
-					if (event.which == 13) {
-						if ($('#tasksummary').val() != '') {
-							OC.Aufgaben.SubmitForm('newitTask', '#taskForm', '#tasks_list_details');
-						} else {
-							OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
-						}
-					}
-				});
-
-				$('#newTodo-cancel').on('click', function() {
-					$("#dialogmore").dialog("close");
-				});
-
-				OC.Aufgaben.getReminderSelectLists();
-
-				OC.Aufgaben.initActionHandler();
-
-				//$('#taskcategories').multiple_autocomplete({source: categoriesSel});
-
 			}
-		});
+		
+		OC.Aufgaben.popOverElem = $(event.target); 	
+			
+			OC.Aufgaben.popOverElem.webuiPopover({
+				url:OC.generateUrl('apps/aufgaben/newtask'),
+				async:{
+					type:'POST',
+					data : {
+						mytaskmode : $('#donetodo').data('mode'),
+						mytaskcal : $('#donetodo').data('cal'),
+						relatedto : TaskUid
+					},
+					success:function(that,data){
+						that.displayContent();
+						that.getContentElement().css('height','auto');
+						
+						if ($('#donetodo').data('mode') == 'dayselect') {
+							$('#startdate').val($('#taskmanagertitle').attr('data-date'));
+						}
+		
+						$('#newTodo-submit').on('click', function() {
+							if ($('#tasksummary').val() != '') {
+								OC.Aufgaben.SubmitForm('newitTask', '#taskForm', '#tasks_list_details');
+							} else {
+								OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
+							}
+						});
+		
+						$('#tasksummary').bind('keydown', function(event) {
+							if (event.which == 13) {
+								if ($('#tasksummary').val() != '') {
+									OC.Aufgaben.SubmitForm('newitTask', '#taskForm', '#tasks_list_details');
+								} else {
+									OC.Aufgaben.showMeldung(t('aufgaben', 'Title is missing'));
+								}
+							}
+						});
+		
+						$('#newTodo-cancel').on('click', function() {
+							OC.Aufgaben.popOverElem.webuiPopover('destroy');
+							OC.Aufgaben.popOverElem = null;
+							$('#new-event').remove();
+						});
+		
+						OC.Aufgaben.getReminderSelectLists();
+		
+						OC.Aufgaben.initActionHandler();
+						
+					}
+				},
+				multi:false,
+				closeable:false,
+				cache:false,
+				placement:'auto',
+				type:'async',
+				width:400,
+				animation:'pop',
+				height:250,
+				trigger:'manual',
+			}).webuiPopover('show');	
+
 		return false;
 	},
 	SubmitForm : function(VALUE, FormId, UPDATEAREA) {
@@ -1097,23 +1080,31 @@ OC.Aufgaben = {
 			url : $url,
 			data :$(FormId).serialize(),
 			success : function(jsondata) {
-				OC.Aufgaben.rebuildLeftTaskView();
+				
 
 				if (VALUE == 'newitTask') {
 					OC.Aufgaben.showMeldung(t('aufgaben', 'Task creating success!'));
-					$('#dialogmore').dialog('close');
+					OC.Aufgaben.popOverElem.webuiPopover('destroy');
+					OC.Aufgaben.popOverElem = null;
+					$('#new-event').remove();
 					OC.Aufgaben.taskRendering(jsondata);
 				}
 				if (VALUE == 'edititTask') {
 					OC.Aufgaben.showMeldung(t('aufgaben', 'Update success!'));
-					if ($('#mytaskmode').val() == 'calendar') {
-						OC.Aufgaben.updateList($('#mytaskcal').val());
+					OC.Aufgaben.popOverElem.webuiPopover('destroy');
+					OC.Aufgaben.popOverElem = null;
+					$('#edit-event').remove();
+					
+					if ($('.calListen').hasClass('active')) {
+						OC.Aufgaben.updateList($('.calListen.active').data('id'));
 					}
 
-					if ($('#mytaskmode').val() != 'calendar') {
-						OC.Aufgaben.updateListByPeriod($('#mytaskmode').val());
+					if ($('.taskstimerow').hasClass('active')) {
+						OC.Aufgaben.updateListByPeriod($('.taskstimerow.active').data('id'));
 					}
 				}
+				
+				OC.Aufgaben.rebuildLeftTaskView();
 			}
 			
 		});
@@ -1155,10 +1146,56 @@ OC.Aufgaben = {
 				if (saveArray[$(el).attr('data-id')] != undefined && saveArray[$(el).attr('data-id')]) {
 					$(el).addClass('filterActive').show('fast');
 				} else {
-					if ($(el).attr('id') != 'donetodo')
+					if ($(el).attr('id') != 'donetodo'){
 						$(el).hide('fast');
+					}
 				}
 			});
+		}
+
+	},
+	generateTaskList : function(jsondata) {
+		$('#donetodo').on('click', function() {
+			$('.task [data-val="counterdone"]').toggleClass('arrowDown');
+			if (! $('.task.done').is(':visible')) {
+				$('span[data-val="counterdone"]:before').css('content', '\25BC');
+				$('.task.done').show('fast');
+			} else {
+				$('.task.done').hide('fast');
+			}
+		});
+
+		$('.task [data-val="counterdone"]').text($(jsondata['done']).length);
+		$(jsondata['done']).each(function(i, task) {
+			OC.Aufgaben.taskRendering(task);
+		});
+
+		$(jsondata['open']).each(function(i, task) {
+			OC.Aufgaben.taskRendering(task);
+		});
+		if ($(jsondata['done']).length == 0 && $(jsondata['open']).length == 0) {
+			var tmpTask = $('<div class="task" data-id="notodo">').html('<label>' + t('aufgaben', 'No Todos') + '</label>');
+			$('#tasks_list').append(tmpTask);
+		}
+		$('.task .subtask').toggle();
+
+		$(".dropzone").droppable({
+			activeClass : "activeHover",
+			hoverClass : "dropHover",
+			accept : '#categoryTasksList .categorieslisting',
+			over : function(event, ui) {
+
+			},
+			drop : function(event, ui) {
+				if ($(this).data('id') != null)
+					OC.Aufgaben.addCategory($(this).data('id'), ui.draggable.attr('title'));
+			}
+		});
+
+		if (OC.Aufgaben.firstLoading === true) {
+			OC.Aufgaben.checkShowEventHash();
+			OC.Aufgaben.firstLoading = false;
+			OC.Aufgaben.calcDimension();
 		}
 
 	},
@@ -1173,38 +1210,22 @@ OC.Aufgaben = {
 			var doneTask = $('<div class="task" id="donetodo" data-mode="calendar" data-cal="' + CID + '"><span class="iCount" data-val="counterdone">0</span> <label>'+t('aufgaben','done')+'</label></div>').appendTo($('#tasks_list'));
 
 			OC.Aufgaben.generateTaskList(jsondata);
-
-			if ($('.calListen[data-id="' + CID + '"]').data('permissions') & OC.PERMISSION_CREATE) {
-				$('<div class="task" id="newtodo" style="line-height:50px;height:50px;"><span class="button" style="margin-left:34px;margin-top:-2px; margin-bottom:4px;">'+t('aufgaben','New Todo ...')+'</span></div>').appendTo($('#tasks_list'));
-				$('#newtodo').on('click', OC.Aufgaben.newTask);
-			} else {
-				$('<div class="task" id="newtodo" style="display:none;"></div>').appendTo($('#tasks_list'));
-			}
 			
-			/*
-			 $('.task .location').each(function(i,el){
-			 $(el).tooltip({
-			 items: "[data-geo], [title]",
-
-			 content: function() {
-			 var element = $( this );
-			 if ( element.is( "[data-geo]" ) ) {
-			 var text = element.text();
-			 return "<img class='map' alt='" + text +
-			 "' src='http://maps.google.com/maps/api/staticmap?" +
-			 "zoom=14&size=350x350&maptype=terrain&sensor=false&center=" +
-			 text + "'>";
-			 }
-			 if ( element.is( "[title]" ) ) {
-			 return element.attr( "title" );
-			 }
-			 if ( element.is( "img" ) ) {
-			 return element.attr( "alt" );
-			 }
-			 }
-			 });
-			 });
-			 */
+			$('<div class="task" id="newtodo" style="display:none;"></div>').appendTo($('#tasks_list'));
+			if ($('.calListen[data-id="' + CID + '"]').data('permissions') & OC.PERMISSION_CREATE) {
+					$('#newTodoButton').show();
+			} else {
+				$('#newTodoButton').hide();
+			}
+			$('.task .colCal').hide();
+			$('.categorieslisting').find('.counter').text(0);
+			
+			$('#tasks_list .categories').find('a').each(function(i, el) {
+				var iCounter = parseInt($('.categorieslisting[data-name="'+$(el).attr('title')+'"]').find('.counter').text());
+				$('.categorieslisting[data-name="'+$(el).attr('title')+'"]').find('.counter').text(iCounter+1);
+			});
+			
+			
 
 		});
 
@@ -1227,20 +1248,37 @@ OC.Aufgaben = {
 			$('<div class="task" id="donetodo" data-mode="' + MODE + '" data-cal="0"><span class="iCount" data-val="counterdone">0</span> <label>'+t('aufgaben','done')+'</label></div>').appendTo($('#tasks_list'));
 
 			OC.Aufgaben.generateTaskList(jsondata);
-
+			$('<div class="task" id="newtodo" style="display:none;"></div>').appendTo($('#tasks_list'));
+			
 			if (MODE == 'dayselect') {
-				$('<div class="task" id="newtodo" style="line-height:50px;height:50px;"><span class="button" style="margin-left:34px;margin-top:-2px; margin-bottom:4px;">'+t('aufgaben','New Todo ...')+'</span></div>').appendTo($('#tasks_list'));
-				$('#newtodo').on('click', OC.Aufgaben.newTask);
+			$('#newTodoButton').show();
 			} else {
-				$('<div class="task" id="newtodo" style="display:none;"></div>').appendTo($('#tasks_list'));
+				$('#newTodoButton').hide();
 			}
 			if (MODE == 'alltasksdone') {
 				$('.task [data-val="counterdone"]').addClass('arrowDown');
 				$('.task.done').show('fast');
 			}
+			
+			$('.categorieslisting').find('.counter').text(0);
+			
+			$('#tasks_list .categories').find('a').each(function(i, el) {
+				var iCounter = parseInt($('.categorieslisting[data-name="'+$(el).attr('title')+'"]').find('.counter').text());
+				$('.categorieslisting[data-name="'+$(el).attr('title')+'"]').find('.counter').text(iCounter+1);
+			});
+			
+			if(OC.Aufgaben.searchTodoId !== null){
+				var jsEvent = {};
+				jsEvent.id = OC.Aufgaben.searchTodoId;
+				jsEvent.target = $('.task .summary[data-todoid="'+OC.Aufgaben.searchTodoId+'"]');
+				
+				OC.Aufgaben.showEditTask(jsEvent);
+				OC.Aufgaben.searchTodoId = null;
+			}
+			
 		});
 		
-
+		return false;
 	},
 	reminder : function(task) {
 		if (task == 'init') {
@@ -1351,11 +1389,11 @@ OC.Aufgaben = {
 			$('#lTimeline').click(function() {
 	
 				if (! $('div[data-id="lTimelineHolder"]').is(':visible')) {
-					$('h3 #lTimeline i.ioc-chevron-down').removeClass('ioc-rotate-270');
+					$('h3 #lTimeline i.ioc-angle-down').removeClass('ioc-rotate-270');
 					$('div[data-id="lTimelineHolder"]').show('fast');
 				} else {
 					$('div[data-id="lTimelineHolder"]').hide('fast');
-					$('h3 #lTimeline i.ioc-chevron-down').addClass('ioc-rotate-270');
+					$('h3 #lTimeline i.ioc-angle-down').addClass('ioc-rotate-270');
 				}
 			});
 				
@@ -1363,22 +1401,22 @@ OC.Aufgaben = {
 			$('#showCategory').click(function() {
 	
 				if (! $('#categoryTasksList').is(':visible')) {
-					$('h3 #showCategory i.ioc-chevron-down').removeClass('ioc-rotate-270');
+					$('h3 #showCategory i.ioc-angle-down').removeClass('ioc-rotate-270');
 					$('#categoryTasksList').show('fast');
 				} else {
 					$('#categoryTasksList').hide('fast');
-					$('h3 #showCategory i.ioc-chevron-down').addClass('ioc-rotate-270');
+					$('h3 #showCategory i.ioc-angle-down').addClass('ioc-rotate-270');
 				}
 			});
 			
 			
 			$('#lCalendar').click(function() {
 				if (! $('#datepickerNav').is(':visible')) {
-					$('h3 #lCalendar i.ioc-chevron-down').removeClass('ioc-rotate-270');
+					$('h3 #lCalendar i.ioc-angle-down').removeClass('ioc-rotate-270');
 					$('#datepickerNav').show('fast');
 				} else {
 					$('#datepickerNav').hide('fast');
-					$('h3 #lCalendar i.ioc-chevron-down').addClass('ioc-rotate-270');
+					$('h3 #lCalendar i.ioc-angle-down').addClass('ioc-rotate-270');
 				}
 			});
 
@@ -1393,11 +1431,11 @@ OC.Aufgaben = {
 				}
 			});
 
-			if (OC.Aufgaben.firstLoading == true) {
-				$('#tasks_list').height($(window).height() - 78);
-				$('#tasks_list').width($(window).width() - 260);
-				$('#tasksListOuter').width($(window).width() - 262);
-				$('#tasks_list_details').height($(window).height() - 90);
+			if (OC.Aufgaben.firstLoading == true && OC.Aufgaben.searchTodoId === null) {
+				//$('#tasks_list').height($(window).height() - 78);
+				//$('#tasks_list').width($(window).width() - 260);
+				//$('#tasksListOuter').width($(window).width() - 262);
+				//$('#tasks_list_details').height($(window).height() - 90);
 
 				$('.taskstimerow[data-id="' + OC.Aufgaben.startMode + '"]').addClass('active');
 				$('#taskmanagertitle').text($('.taskstimerow[data-id="' + OC.Aufgaben.startMode + '"]').attr('title'));
@@ -1410,10 +1448,26 @@ OC.Aufgaben = {
 	checkShowEventHash : function() {
 		var id = parseInt(window.location.hash.substr(1));
 		if (id) {
-			var calEvent = {};
-			calEvent['id'] = id;
-
-			OC.Aufgaben.showEditTask(calEvent);
+				OC.Aufgaben.startMode = 'showall';
+				OC.Aufgaben.searchTodoId = id;
+				if(OC.Aufgaben.firstLoading === false){
+					myMode = 'showall';
+					if(!$('.taskstimerow[data-id="showall"]').hasClass('active')){
+						OC.Aufgaben.updateListByPeriod(myMode);
+						
+						$('.taskstimerow').removeClass('active');
+						$('.calListen').removeClass('active');
+						$('.taskstimerow[data-id="showall"]').addClass('active');
+					}else{
+						var jsEvent = {};
+						jsEvent.id = OC.Aufgaben.searchTodoId;
+						jsEvent.target = $('.task .summary[data-id="'+OC.Aufgaben.searchTodoId+'"]');
+						
+						OC.Aufgaben.showEditTask(jsEvent);
+						OC.Aufgaben.searchTodoId = null;
+					}
+				}
+			
 
 		}
 	},
@@ -1433,26 +1487,34 @@ OC.Aufgaben = {
 	buildCategoryList : function() {
 		var htmlCat = '';
 		$.each(OC.Aufgaben.tags, function(i, elem) {
-			htmlCat += '<li class="categorieslisting" title="' + elem['name'] + '"><span class="catColPrev" style="background-color:' + elem['bgcolor'] + ';color:' + elem['color'] + '">' + elem['name'].substring(0, 1) + '</span> ' + elem['name'] + '</li>';
+			htmlCat += '<li class="categorieslisting" data-name="' + elem['name'] + '" title="' + elem['name'] + '"><span class="catColPrev" style="background-color:' + elem['bgcolor'] + ';color:' + elem['color'] + '">' + elem['name'].substring(0, 1) + '</span> ' + elem['name'] + '<span class="counter">0</span></li>';
 		});
 
 		$('#categoryTasksList').html(htmlCat);
 
 		$('.categorieslisting').each(function(i, el) {
 			$(el).on('click', function() {
+				//$('.categorieslisting').removeClass('isFilter');
 				if ($(this).hasClass('isFilter')) {
 					$(this).removeClass('isFilter');
 					$('.task .categories a').each(function(i, el) {
 						$Task = $(this).closest('.task');
 						$Task.removeClass('filterActive');
 						$('.task').each(function(i, el) {
+							if($(el).find('.ioc-angle-down').hasClass('ioc-rotate-270')){
+								$(el).find('.ioc-angle-down').removeClass('ioc-rotate-270');
+							}
 							$(el).show('fast');
 						});
 					});
 				} else {
-					$('.task [data-val="counterdone"]').addClass('arrowDown');
-					OC.Aufgaben.filter($(this).attr('title'));
-					$(this).addClass('isFilter');
+					var iCounter = parseInt($(this).find('.counter').text());
+					if(iCounter > 0){
+						$('.categorieslisting').removeClass('isFilter');
+						$('.task [data-val="counterdone"]').addClass('arrowDown');
+						OC.Aufgaben.filter($(this).attr('title'));
+						$(this).addClass('isFilter');
+					}
 				}
 			});
 		});
@@ -1473,15 +1535,15 @@ OC.Aufgaben = {
 
 		if (winWidth > 768) {
 
-			$('#tasks_list').height(winHeight - 95).width(winWidth - 251);
-			$('#tasks_lists').height(winHeight - 45);
-			$('#tasksListOuter').width(winWidth - 253);
-			$('#tasks_list_details').height(winHeight - 90);
+			//$('#tasks_list').height(winHeight - 95);
+			//$('#tasks_lists').height(winHeight - 95);
+			//$('#tasksListOuter').width(winWidth - 273);
+			
 		} else {
 			$('#tasksListOuter').width(winWidth - 8);
 			$('#tasks_list').width(winWidth - 7).height(winHeight - 78);
-			$('#tasks_lists').height(winHeight - 45);
-			$('#tasks_list_details').height(winHeight - 90);
+			$('#tasks_lists').height(winHeight - 65);
+			
 		}
 	},
 	getInit : function() {
@@ -1493,7 +1555,9 @@ OC.Aufgaben = {
 				OC.Aufgaben.tags = jsondata.tags;
 				
 				OC.Aufgaben.rebuildLeftTaskView();
-				OC.Aufgaben.updateListByPeriod(OC.Aufgaben.startMode);
+				if(OC.Aufgaben.searchTodoId === null){
+					OC.Aufgaben.updateListByPeriod(OC.Aufgaben.startMode);
+				}
 			}
 		}
 		);
@@ -1501,7 +1565,9 @@ OC.Aufgaben = {
 };
 
 $(window).bind('hashchange', function() {
-	OC.Aufgaben.checkShowEventHash();
+	if (OC.Aufgaben.firstLoading === false) {
+		OC.Aufgaben.checkShowEventHash();
+	}
 });
 
 var resizeTimeout = null;
@@ -1521,6 +1587,8 @@ $(window).resize(function() {
 });
 
 $(document).ready(function() {
+	$('#newTodoButton').hide();
+	$('#newTodoButton').on('click', OC.Aufgaben.newTask);
 	
 	OC.Aufgaben.getInit();
 	
@@ -1535,16 +1603,16 @@ $(document).ready(function() {
 	//	if (!OC.Share.droppedDown) {
 		event.preventDefault();
 		event.stopPropagation();
-		var itemType = $(this).data('item-type');
+		var iType = $(this).data('item-type');
 		var AddDescr =t('aufgaben','Task')+' ';
 		var sService ='todo';
 		
-		var itemSource = $(this).data('title');
-			  itemSource = '<div>'+AddDescr+itemSource+'</div><div id="dropClose"><i class="ioc ioc-close" style="font-size:22px;"></i></div>';
+		var iSource = $(this).data('title');
+			  iSource = '<div>'+AddDescr+iSource+'</div><div id="dropClose"><i class="ioc ioc-close" style="font-size:22px;"></i></div>';
 			  
 		if (!$(this).hasClass('shareIsOpen') && $('a.share.shareIsOpen').length === 0) {
 			$('#infoShare').remove();
-			$( '<div id="infoShare">'+itemSource+'</div>').prependTo('#dropdown');
+			$( '<div id="infoShare">'+iSource+'</div>').prependTo('#dropdown');
 				
 		}else{
 			$('a.share').removeClass('shareIsOpen');
@@ -1565,7 +1633,7 @@ $(document).ready(function() {
 			OC.Share.showDropDown = function() {
 				var r = targetShow.apply(this, arguments);
 				$('#infoShare').remove();
-				$( '<div id="infoShare">'+itemSource+'</div>').prependTo('#dropdown');
+				$( '<div id="infoShare">'+iSource+'</div>').prependTo('#dropdown');
 				
 				return r;
 			};

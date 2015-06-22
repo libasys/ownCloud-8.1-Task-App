@@ -7,8 +7,6 @@
      <input type="hidden" name="subtaskids" value="<?php p($_['subtaskids']); ?>" />
     <input type="hidden" name="hiddenfield" value="" />
     <input  type="hidden" name="taskcategories" id="taskcategories" value="<?php p($_['vtodo']->categories); ?>" />
-    <input type="hidden" name="mailNotificationEnabled" id="mailNotificationEnabled" value="<?php p($_['mailNotificationEnabled']) ?>" />
-    <input type="hidden" name="allowShareWithLink" id="allowShareWithLink" value="<?php p($_['allowShareWithLink']) ?>" />
     <input type="hidden" name="mytaskmode" id="mytaskmode" value="<?php p($_['mymode']); ?>" />		
 <input type="hidden" name="mytaskcal" id="mytaskcal" value="<?php p($_['mycal']); ?>" />		
 				<input type="hidden" name="read_worker" id="hiddenCalSelection" value="<?php p($_['calendar']); ?>">
@@ -40,13 +38,14 @@
 			<input type="text" style="width:306px;"  placeholder="<?php p($l->t("Location of the Event"));?>" value="<?php p($_['vtodo']->location); ?>" maxlength="100" id="tasklocation"  name="tasklocation" />
              <?php if($_['permissions'] & OCP\PERMISSION_SHARE) { ?>
            
-              <a href="#" class="share action permanent" data-item-type="todo" 
+              <a href="#" class="share action permanent icon-share" 
+                data-item-type="todo" 
 			    data-item="todo-<?php p($_['id']) ?>" 
 			    data-link="true"
 			    data-title="<?php p($_['vtodo']->summary); ?>"
 				data-possible-permissions="<?php p( $_['permissions']) ?>"
 				title="<?php p($l->t('Share Event')) ?>"
-				style="background:url(<?php print_unescaped(OCP\Util::imagePath('core', 'actions/share.svg')) ?>) no-repeat center;">
+				>
 			</a>
         
        <?php } ?>	
@@ -58,12 +57,12 @@
 	</h3>
 	<div>
     <span class="labelLeftSmall"><?php p($l->t('Start')); ?></span> 
-    <input type="text" name="startdate" id="startdate" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe81c;"   value="<?php p($_['TaskStartDate']); ?>" />
-    <input type="text" name="startdate_time" id="startdate_time" class="textField"  placeholder="&#xe826;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="<?php p($_['TaskStartTime']); ?>" />
+    <input type="text" name="startdate" id="startdate" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe827;"   value="<?php p($_['TaskStartDate']); ?>" />
+    <input type="text" name="startdate_time" id="startdate_time" class="textField"  placeholder="&#xe800;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="<?php p($_['TaskStartTime']); ?>" />
 	 <br class="clearing"  />
      <span class="labelLeftSmall"><?php p($l->t('Due')); ?></span> 
-    <input type="text" name="sWV" id="sWV" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe81c;"   value="<?php p($_['TaskDate']); ?>" />
-    <input type="text" name="sWV_time" id="sWV_time" class="textField"  placeholder="&#xe826;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="<?php p($_['TaskTime']); ?>" />
+    <input type="text" name="sWV" id="sWV" class="textField" style="font-family:Arial,fontello;font-size:14px;width:110px;" placeholder="&#xe827;"   value="<?php p($_['TaskDate']); ?>" />
+    <input type="text" name="sWV_time" id="sWV_time" class="textField"  placeholder="&#xe800;" style="font-family:Arial,fontello;font-size:14px;width:50px;" size="5" value="<?php p($_['TaskTime']); ?>" />
 	 <br class="clearing"  />
 	 
 	</div>
@@ -130,9 +129,9 @@
 
 	<div>
      <ul id="tagmanager" style="width:96%;line-height:20px;margin-top:6px;margin-bottom:5px;"></ul>
- 	 <input type="text" style="width:96%;font-family:Arial, fontello;font-size:14px;" size="200" placeholder="&#xe82e; <?php p($l->t("URL"));?>" value="<?php p(isset($_['link']) ? $_['link'] : '') ?>" maxlength="200"  name="link" />
+ 	 <input type="text" style="width:96%;font-family:Arial, fontello;font-size:14px;" size="200" placeholder="&#xe84f; <?php p($l->t("URL"));?>" value="<?php p(isset($_['link']) ? $_['link'] : '') ?>" maxlength="200"  name="link" />
       <br class="clearing"  />
-    <textarea class="textClass pflicht" style="width:95%;height: 50px;font-family:Arial, fontello;font-size:14px;"  placeholder="&#xe817; <?php p($l->t("Description of the Event"));?>" name="noticetxt"><?php p($_['vtodo']->description); ?></textarea>
+    <textarea class="textClass pflicht" style="width:95%;height: 50px;font-family:Arial, fontello;font-size:14px;"  placeholder="&#xe845; <?php p($l->t("Description of the Event"));?>" name="noticetxt"><?php p($_['vtodo']->description); ?></textarea>
      <br class="clearing"  />
    </div>
   </div>

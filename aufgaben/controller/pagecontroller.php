@@ -53,7 +53,8 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		
+		\OCP\Util::addScript('calendar', '3rdparty/jquery.webui-popover');
+		\OCP\Util::addStyle('calendar', '3rdparty/jquery.webui-popover');
 		\OCP\Util::addScript('calendar','timepicker');
 		\OCP\Util::addScript('aufgaben', 'aufgaben');
 		\OCP\Util::addScript('calendar','jquery.nicescroll.min');
@@ -62,13 +63,19 @@ class PageController extends Controller {
 		\OCP\Util::addStyle('aufgaben', 'style');
 		\OCP\Util::addScript('calendar', '3rdparty/tag-it');
 		\OCP\Util::addStyle('calendar', '3rdparty/jquery.tagit');
-
+		
 		
 		$csp = new \OCP\AppFramework\Http\ContentSecurityPolicy();
 		$csp->addAllowedImageDomain(':data');
 		
+		$config = \OC::$server->getConfig();	
 		
 		$response = new TemplateResponse('aufgaben', 'index');
+		$response->setParams(array(
+			'allowShareWithLink' => $config->getAppValue('core', 'shareapi_allow_links', 'yes'),
+			'mailNotificationEnabled' => $config->getAppValue('core', 'shareapi_allow_mail_notification', 'no'),
+			'mailPublicNotificationEnabled' => $config->getAppValue('core', 'shareapi_allow_public_notification', 'no'),
+		));
 		$response->setContentSecurityPolicy($csp);
 		
 

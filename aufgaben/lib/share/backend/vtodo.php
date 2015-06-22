@@ -10,9 +10,11 @@ class Vtodo implements \OCP\Share_Backend {
 	private static $vtodo;
 	
 	public function isValidSource($itemSource, $uidOwner) {
-	     $itemSource = \OCA\Calendar\App::validateItemSource($itemSource,'todo-');	
+	     $itemSource = \OCA\Calendar\App::validateItemSource($itemSource, 'todo-');	
 	     self::$vtodo = \OCA\Calendar\Object::find($itemSource);
+		
 		if (self::$vtodo) {
+			
 			return true;
 		}
 		return false;
@@ -21,12 +23,13 @@ class Vtodo implements \OCP\Share_Backend {
 	}
 	
 	public function isShareTypeAllowed($shareType) {
+		 \OCP\Util::writeLog('aufgaben','VALID PASSED', \OCP\Util::DEBUG);		
 		return true;
 	}
 
 	public function generateTarget($itemSource, $shareWith, $exclude = null) {
 		if(!self::$vtodo) {
-			$itemSource = \OCA\Calendar\App::validateItemSource($itemSource,'todo-');		
+			$itemSource = \OCA\Calendar\App::validateItemSource($itemSource, 'todo-');		
 			self::$vtodo = \OCA\Calendar\Object::find($itemSource);
 		}
 	
@@ -38,7 +41,7 @@ class Vtodo implements \OCP\Share_Backend {
 		if ($format == self::FORMAT_TODO) {
 			$user_timezone = \OCA\Calendar\App::getTimezone();
 			foreach ($items as $item) {
-				$item['item_source'] = \OCA\Calendar\App::validateItemSource($item['item_source'],'todo-');		
+				$item['item_source'] = \OCA\Calendar\App::validateItemSource($item['item_source'], 'todo-');		
 				if(!\OCA\Aufgaben\App::checkSharedTodo($item['item_source'])){	
 					$event = \OCA\Aufgaben\App::getEventObject( $item['item_source'] );
 					$vcalendar = \OCA\Calendar\VObject::parse($event['calendardata']);

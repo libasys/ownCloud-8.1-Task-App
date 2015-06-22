@@ -97,6 +97,7 @@
     "shared_group_self_aufgaben":"Sie teilen <strong>%1$s</strong> mit der Gruppe <strong>%2$s</strong>",
     "shared_with_by_aufgaben":"<strong>%2$s</strong> teilt <strong>%1$s</strong> mit Ihnen",
     "todo":"Aufgabe",
+    "New Todo ..." : "Neues Ereignis ...",
     "VTODO" : "Aufgabe",
     "%s shared the Todo \"%s\" with you" : "%s teilt die Aufgabe \"%s\" mit Ihnen"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

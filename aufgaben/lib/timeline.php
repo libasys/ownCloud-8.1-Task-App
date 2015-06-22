@@ -66,10 +66,10 @@ class Timeline{
 		//	$aCalendarNew='';
 		foreach($aCalendar as $cal){
 			
-			if($cal['issubscribe'] == 0){	
-				$this->aCalendar[$cal['id']]=$cal;
-			}
-			//\OCP\Util::writeLog('calendar','AlarmDB ID :'.$cal['id'] ,\OCP\Util::DEBUG);	
+		//	if($cal['issubscribe'] == 0){	
+				$this->aCalendar[$cal['id']] = $cal;
+			//}
+			//\OCP\Util::writeLog('calendar','Name :'.$cal['displayname'] ,\OCP\Util::DEBUG);	
 		}	
 			
 		//$this->aCalendar=$aCalendarNew;
@@ -135,7 +135,7 @@ class Timeline{
 		$taskOutput='';
 		
 		// foreach( $this->aCalendar as $cal ) {
-		 	 $calendar_tasks = App::all($this->aCalendar);
+		 	 $calendar_tasks = App::all($this->aCalendar, true);
 			 $checkCat=\OCA\Calendar\App::loadTags();
 			 $checkCatCache='';
 				foreach($checkCat['tagslist'] as $catInfo){
@@ -223,7 +223,7 @@ class Timeline{
 						$dtstart = strtotime($dtstartTmp); 
 						
 							$bToday=false;
-							if($dtstart==$today){
+							if($dtstart == $today){
 								$this->taskOutPutbyTime['today'].=$taskOutput;
 								$bToday=true;
 							}
@@ -438,17 +438,24 @@ class Timeline{
    }
 	
 	public function getTaskData(){
-		if($this->sMode!='' && $this->sMode!='showall' && $this->sMode!='alltasksdone')  $this->getCalendarAllInPeriodTasksData();
-		else $this->getCalendarAllTasksData();
+		if($this->sMode !=='' && $this->sMode !== 'showall' && $this->sMode !== 'alltasksdone'){
+			  $this->getCalendarAllInPeriodTasksData();
+		}else{
+			 $this->getCalendarAllTasksData();
+		}
 	}
    
    public function generateCalendarSingleOutput(){
     	     $this->getCalendarPermissions();
-			  $this->aCalendar[$this->iCalId]=$this->iCalPermissions;
+			  $this->aCalendar[$this->iCalId] = $this->iCalPermissions;
 	          $this->getTaskData();
 			  $this->generateTasksToCalendarOutput();
-			  if(is_array($this->aTasksOutput)) return $this->aTasksOutput;
-	          else return false;
+			  
+			  if(is_array($this->aTasksOutput)){
+				   return $this->aTasksOutput;
+			  }else{
+			  	return false;
+			  } 
     }
    
    public function generateTasksAllOutput(){

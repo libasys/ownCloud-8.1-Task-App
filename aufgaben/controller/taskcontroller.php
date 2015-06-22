@@ -53,21 +53,36 @@ class TaskController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function getTasks() {
-		$sMode = $this -> params('mode');
-		$calId = $this -> params('calid');
+		$sMode = (string) $this -> params('mode');
+		$calId = (int) $this -> params('calid');
 		$atasksModeAllowed = array('dayselect'=>1,'showall'=>1,'today'=>1,'tomorrow'=>1,'actweek'=>1,'withoutdate'=>1,'missedactweek'=>1,'alltasks'=>1,'alltasksdone'=>1,'sharedtasks'=>1,'comingsoon'=>1);
 		$tasks = array();
 		
-		if(intval($calId) > 0 && $sMode=='') {
-			$cDataTimeLine=new Timeline();
+		if(intval($calId) > 0 && $sMode === '') {
+			$cDataTimeLine = new Timeline();
 			$cDataTimeLine->setTimeLineMode('');
 			$cDataTimeLine->setCalendarId($calId);
-			$tasks=$cDataTimeLine->generateCalendarSingleOutput();
+			$tasks = $cDataTimeLine->generateCalendarSingleOutput();
 		}
 		
 		// Get Timelined tasks
-		if($sMode!='' && $atasksModeAllowed[$sMode] && $sMode!='sharedtasks'){
+		if($sMode !== '' && $atasksModeAllowed[$sMode] && $sMode !== 'sharedtasks'){
 			$calendars = CalendarCalendar::allCalendars($this->userId, true);
+			$activeCalendars = '';
+			foreach($calendars as $calendar) {
+				$isAktiv= $calendar['active'];
+				
+				if($this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id'])!=''){
+				    $isAktiv=$this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id']);
+			    }	
+				if(!array_key_exists('active', $calendar)){
+					$isAktiv= 1;
+				}
+				if($isAktiv == 1 && (int) $calendar['issubscribe'] === 0) {
+					$activeCalendars[] = $calendar;
+				}
+			}
+			
 		   	$cDataTimeLine=new Timeline();
 		   
 		   	if($sMode=='dayselect'){
@@ -77,16 +92,16 @@ class TaskController extends Controller {
 		   	}
 		   
 		   	$cDataTimeLine->setTimeLineMode($sMode);
-		   	$cDataTimeLine->setCalendars($calendars);
+		   	$cDataTimeLine->setCalendars($activeCalendars);
 		   	$tasks=$cDataTimeLine->generateTasksAllOutput();
 		}
 		
 		//Get Shared Tasks
-		if($sMode!='' && $atasksModeAllowed[$sMode] && $sMode=='sharedtasks'){
+		if($sMode !== '' && $atasksModeAllowed[$sMode] && $sMode === 'sharedtasks'){
 			
 			$singletodos = \OCP\Share::getItemsSharedWith('todo', \OCA\Aufgaben\Share\Backend\Vtodo::FORMAT_TODO);
 			if(is_array($singletodos)){
-					$tasks=$singletodos;
+				$tasks = $singletodos;
 		   }	
 		}
 		
@@ -183,12 +198,28 @@ class TaskController extends Controller {
 	public function buildLeftNavigation() {
 			
 		$calendars = CalendarCalendar::allCalendars($this->userId, true);
+		
+		$activeCalendars = '';
+		foreach($calendars as $calendar) {
+			$isAktiv= $calendar['active'];
+			
+			if($this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id'])!=''){
+			    $isAktiv=$this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id']);
+		    }	
+			if(!array_key_exists('active', $calendar)){
+				$isAktiv= 1;
+			}
+			if($isAktiv == 1 && (int) $calendar['issubscribe'] === 0) {
+				$activeCalendars[] = $calendar;
+			}
+		}
+		
 		$cDataTimeLine=new Timeline();
-		$cDataTimeLine->setCalendars($calendars);
+		$cDataTimeLine->setCalendars($activeCalendars);
 		$outputTodoNav=$cDataTimeLine->generateTodoOutput();
 		
 		$params = [
-			'calendars' => $calendars,
+			'calendars' => $activeCalendars,
 			'tasksCount' => $outputTodoNav['tasksCount'],
 			'aTaskTime' => $outputTodoNav['aTaskTime'],
 			'aCountCalEvents' => $outputTodoNav['aCountCalEvents'],
@@ -310,17 +341,32 @@ class TaskController extends Controller {
 		$checkShareArray=array();
 		$bShareCalId='';
 		foreach($calendarsArrayTmp as $calendar) {
-			if($calendar['userid'] != $this->userId) {
+			
+			$isAktiv= $calendar['active'];
+			
+			if($this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id'])!=''){
+			    $isAktiv=$this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id']);
+		    }	
+			if(!array_key_exists('active', $calendar)){
+				$isAktiv= 1;
+			}
+			if($isAktiv === 1 && $calendar['userid'] !== $this->userId) {
 				$sharedCalendar = \OCP\Share::getItemSharedWithBySource('calendar', 'calendar-'.$calendar['id']);
 				if ($sharedCalendar && ($sharedCalendar['permissions'] & \OCP\PERMISSION_CREATE)) {
 					array_push($calendar_options, $calendar);
 					$checkShareArray[$calendar['id']]=$calendar['id'];	
 				}
-			} else {
+			}	
+			if($isAktiv === 1 && $calendar['userid'] === $this->userId) {
 				array_push($calendar_options, $calendar);
 				$checkArray[$calendar['id']]=$calendar['id'];	
-			}
+			}	
+				
+			
 		}
+		
+		
+		
 		
 		$priorityOptionsArray= AufgabenApp::getPriorityOptionsFilterd();
 		$access_class_options = CalendarApp::getAccessClassOptions();
@@ -414,11 +460,11 @@ class TaskController extends Controller {
 			}
 			
 			if($calId != intval($cid)){
-				OCA\Calendar\Object::moveToCalendar($id, intval($cid));
+				\OCA\Calendar\Object::moveToCalendar($id, intval($cid));
 				 if($subTaskIds!=''){
 				 	$tempIds=explode(',',$subTaskIds);
 					  foreach($tempIds as $subIds){
-					  	OCA\Calendar\Object::moveToCalendar($subIds, intval($cid));
+					  	\OCA\Calendar\Object::moveToCalendar($subIds, intval($cid));
 					  }
 				 }
 			}
@@ -479,19 +525,28 @@ class TaskController extends Controller {
 		$bShareCalId='';
 		
 		foreach($calendarsArrayTmp as $calendar) {
-	
-			if($calendar['userid'] != $this->userId || $mainTaskId!='') {
 				
+			$isAktiv= $calendar['active'];
+			
+			if($this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id'])!=''){
+			    $isAktiv=$this ->configInfo -> getUserValue($this -> userId, 'calendar', 'calendar_'.$calendar['id']);
+		    }	
+			if(!array_key_exists('active', $calendar)){
+				$isAktiv= 1;
+			}
+			if($isAktiv === 1 && $calendar['userid'] !== $this->userId || $mainTaskId !== '') {
 				$sharedCalendar = \OCP\Share::getItemSharedWithBySource('calendar', 'calendar-'.$calendar['id']);
-				if ($sharedCalendar && ($sharedCalendar['permissions'] & \OCP\PERMISSION_UPDATE) && $mainTaskId=='') {
+				if ($sharedCalendar && ($sharedCalendar['permissions'] & \OCP\PERMISSION_UPDATE) && $mainTaskId === '') {
 					array_push($calendar_options, $calendar);
 					$checkShareArray[$calendar['id']]=$sharedCalendar['permissions'];	
 				}
-			} else {
-				$checkShareArray[$calendar['id']]= \OCP\PERMISSION_ALL;	
-			
+			}	
+			if($isAktiv === 1 && $calendar['userid'] === $this->userId) {
 				array_push($calendar_options, $calendar);
-			}
+				$checkShareArray[$calendar['id']]= \OCP\PERMISSION_ALL;	
+			}		
+	
+			
 		}
 		
 		
@@ -551,8 +606,6 @@ class TaskController extends Controller {
 			'reminderemailinput' => (array_key_exists('email',$aAlarm)) ? $aAlarm['email']:'',
 			'reminderdate' => (array_key_exists('reminderdate',$aAlarm)) ? $aAlarm['reminderdate']:'',
 			'remindertime' => (array_key_exists('remindertime',$aAlarm)) ? $aAlarm['remindertime']:'',
-			'mailNotificationEnabled' => \OC::$server->getAppConfig()->getValue('core', 'shareapi_allow_mail_notification', 'yes'),
-			'allowShareWithLink' => \OC::$server->getAppConfig()->getValue('core', 'shareapi_allow_links', 'yes'),
 			'link' => $link,
 			'priority' => $priority,
 			'TaskDate' => $TaskDate,

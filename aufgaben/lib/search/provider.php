@@ -36,7 +36,24 @@ class Provider extends \OCP\Search\Provider {
 		$allowedCommands=array('#ra'=>1,'#dt'=>1);	
 			
 		$calendars = \OCA\Calendar\Calendar::allCalendars(\OCP\USER::getUser(), true);
-		if(count($calendars)==0 || !\OCP\App::isEnabled('calendar')) {
+		$activeCalendars = '';
+		$config = \OC::$server->getConfig();	
+		
+			foreach($calendars as $calendar) {
+				$isAktiv= $calendar['active'];
+				
+				if($config -> getUserValue(\OCP\USER::getUser(), 'calendar', 'calendar_'.$calendar['id'])!=''){
+				    $isAktiv=$config -> getUserValue(\OCP\USER::getUser(), 'calendar', 'calendar_'.$calendar['id']);
+			    }	
+				if(!array_key_exists('active', $calendar)){
+					$isAktiv= 1;
+				}
+				if($isAktiv == 1 && (int) $calendar['issubscribe'] === 0) {
+					$activeCalendars[] = $calendar;
+				}
+			}
+		
+		if(count($activeCalendars)==0 || !\OCP\App::isEnabled('calendar')) {
 			//return false;
 		}
 		$results=array();
@@ -56,7 +73,7 @@ class Provider extends \OCP\Search\Provider {
 		}
 		
 		//foreach($calendars as $calendar) {
-			$objects = \OCA\Aufgaben\App::all($calendars);
+			$objects = \OCA\Aufgaben\App::all($activeCalendars);
 			foreach($objects as $object) {
 				if($object['objecttype']!='VTODO') {
 					continue;
@@ -92,6 +109,15 @@ class Provider extends \OCP\Search\Provider {
 				if(substr_count(strtolower($object['summary']), strtolower($query)) > 0 || $searchAdvanced==true) {
 					$calendardata = \OCA\Calendar\VObject::parse($object['calendardata']);
 					$vtodo = $calendardata->VTODO;
+					
+					if (\OCA\Calendar\Object::getowner($object['id']) !== \OCP\USER::getUser()) {
+						if (isset($vtodo -> CLASS) && $vtodo -> CLASS -> getValue() === 'CONFIDENTIAL') {
+							continue;
+						}
+						if (isset($vtodo -> CLASS) && ($vtodo -> CLASS -> getValue() === 'PRIVATE' || $vtodo -> CLASS -> getValue() === '')) {
+							continue;
+						}
+					}
 						
 					if($vtodo->DUE){
 						$dtstart = $vtodo->DUE;

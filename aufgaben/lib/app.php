@@ -92,7 +92,7 @@ class App{
 		   
 		\OCP\Util::writeLog('aufgaben','sql->where: '.$aSQL['wheresql'], \OCP\Util::DEBUG);
 			
-		$stmt = \OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE  `objecttype`= ? '.$aSQL['wheresql'].' ORDER BY relatedto ASC, id ASC');
+		$stmt = \OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE  `objecttype`= ? '.$aSQL['wheresql'].' ORDER BY relatedto ASC, calendarid ASC, startdate DESC');
 		$result = $stmt->execute($aSQL['execsql']);
 
 		$calendarobjects = array();
@@ -263,7 +263,7 @@ class App{
 		return true;
 	}
 
-	public static function all($aCalendar) {
+	public static function all($aCalendar, $bAddonCal = false) {
 			
 		//\OCP\Util::writeLog('calendar','AlarmDB ID :'.$aCalendar ,\OCP\Util::DEBUG);	
 		
@@ -282,9 +282,15 @@ class App{
 			}
 			
 		}
+		
+		$SQLORDERBY = ' ORDER BY relatedto ASC, calendarid ASC, startdate DESC';
+		if($bAddonCal === true){
+			$SQLORDERBY = ' ORDER BY startdate ASC';
+		}
+		
 		//$addWhereSql.=' AND ( '.$addWhereSql.' )';
 		
-		$stmt = \OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE `objecttype`= ? AND ( '.$addWhereSql.' ) ORDER BY relatedto ASC, id ASC' );
+		$stmt = \OCP\DB::prepare( 'SELECT * FROM `*PREFIX*clndr_objects` WHERE `objecttype`= ? AND ( '.$addWhereSql.' ) '.$SQLORDERBY );
 		$result = $stmt->execute($aExec);
 
 		$calendarobjects = array();
